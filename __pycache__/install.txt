@@ -1,0 +1,7 @@
+openssl rand -hex 32
+
+
+pip3 install pydantic[email]
+pip3 install email-validator
+pip3 install passlib[bcrypt]
+pip3 install python-jose[cryptography]
