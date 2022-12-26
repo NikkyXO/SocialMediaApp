@@ -1,5 +1,6 @@
 from jose import JWTError, jwt
 from datetime import  timedelta
+from .utils import verify_password
 import datetime
 from .schema import *
 from .database import *
@@ -7,6 +8,8 @@ from fastapi import FastAPI, Response, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from fastapi.security import OAuth2PasswordBearer
 from .models import *
+from .config import settings
+from typing import Union
 
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl='auth/login')
@@ -21,7 +24,8 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 30
 # ALGORITHM = settings.algorithm
 # ACCESS_TOKEN_EXPIRE_MINUTES = settings.access_token_expire_minutes
 
-
+class TokenData(BaseModel):
+    username: Union[str, None] = None
 
 def get_user(email: str, db: Session = Depends(get_db)):
 
@@ -36,7 +40,7 @@ def create_access_token(data: dict):
 	expire = datetime.datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
 	to_encode.update({"exp": expire})
 
-	encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+	encoded_jwt = jwt.encode(to_encode, settings.secret_key, algorithm=settings.algorithm)
 
 	return encoded_jwt
 
@@ -44,21 +48,31 @@ def create_access_token(data: dict):
 def verify_access_token(token: str, credentials_exception):
 
 	try:
-		payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+		payload = jwt.decode(token, settings.secret_key, algorithms=[settings.algorithm])
 
-		id: str = payload.get('user_id')
+		# id: str = payload.get('user_id')
 		email: str = payload.get('email')
 
-		if id is None or email is None:
+		if email is None:
 			raise credentials_exception
 
 		# verifies / validates if id passed is same as payload id
-		token_data = TokenData(id=id, email=email)
+		token_data = TokenData(email=email)
 
 	except JWTError:
 		raise credentials_exception
 
 	return token_data
+
+def authenticate_user(db: Session, email: str, password: str):
+	user = get_user(db, email)
+	if not user:
+		return False
+
+	if not verify_password(password, user.password):
+		return False
+
+	return user
 
 def get_current_user(token: str = Depends(
 	oauth2_scheme), db: Session = Depends(get_db)):
@@ -69,8 +83,17 @@ def get_current_user(token: str = Depends(
 		headers={'WWW-Authenticate': 'Bearer'}
 	)
 
-	token_data = verify_access_token(token, credentials_exception)
+	try:
+		payload = jwt.decode(token, settings.secret_key,
+								algorithms=[settings.algorithm])
 
-	user = get_user(email=token_data.email, db=db)
-	if not user:
-		return credentials_exception
+		email: str = payload.get("sub")
+		if email is None:
+			raise credentials_exception
+		token_data = TokenData(username=email)
+	except JWTError:
+		raise credentials_exception
+	user = get_user(db, email=token_data.username)
+	if user is None:
+		raise credentials_exception
+	return user

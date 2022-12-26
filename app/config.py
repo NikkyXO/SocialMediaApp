@@ -1,19 +1,21 @@
-from fastapi import FastAPI
+from dotenv import load_dotenv
 from pydantic import BaseSettings
-
+load_dotenv()
 
 class Settings(BaseSettings):
-    database_hostname: str = '0.0.0.0'
+    database_hostname: str 
 
-    database_password: str = '410208olA$$$'
-    database_name: str = 'socials_db'
-    database_username = 'root'
-    secret_key: str = '95ec0365b7f813481a5925ba5d8ca4e39f657bd82116665d55cf7da53f06f576'
-    algorithm: str = "HS256" 
-    database_port: str = '5000'
+    database_password: str 
+    database_name: str
+    database_username : str
+    secret_key: str 
+    algorithm: str 
+    database_port: str 
     access_token_expire_minutes: int = 30
+    # app_passwd: str
+    # app_email: str
 
-    class Config:
+    class config:
         env_file = ".env"
 
 
