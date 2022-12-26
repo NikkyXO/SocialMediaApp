@@ -5,7 +5,7 @@ from .config import settings
 
 
 
-SQLALCHEMY_DATABASE_URL = f'postgresql://postgres:PuI9XJ0u3Q7yRebsq8k0@$containers-us-west-96.railway.app:7307/railway'
+SQLALCHEMY_DATABASE_URL = f'postgresql://postgres:PuI9XJ0u3Q7yRebsq8k0@containers-us-west-96.railway.app:7307/railway'
 
 #SQLALCHEMY_DATABASE_URL = f'postgresql://{settings.database_username}:{settings.database_password}@{settings.database_hostname}:{settings.database_port}/{settings.database_name}'
 
