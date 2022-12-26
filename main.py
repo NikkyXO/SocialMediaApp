@@ -1,9 +1,9 @@
 from fastapi import FastAPI, Response, status
-from .models import *
-from .routers import post, user, auth
+from app.models import *
+from app.routers import post, user, auth
 from fastapi.middleware.cors import CORSMiddleware
 from app.database import *
-from .config import settings
+from app.config import settings
 
 
 import sys
