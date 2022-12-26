@@ -10,6 +10,7 @@ class Settings(BaseSettings):
     database_username = 'root'
     secret_key: str = '95ec0365b7f813481a5925ba5d8ca4e39f657bd82116665d55cf7da53f06f576'
     algorithm: str = "HS256" 
+    database_port: str = '5000'
     access_token_expire_minutes: int = 30
 
     class Config:
