@@ -3,7 +3,7 @@ from pydantic import BaseSettings
 
 
 class Settings(BaseSettings):
-    database_hostname: str = 'localhost'
+    database_hostname: str = '0.0.0.0'
 
     database_password: str = '410208olA$$$'
     database_name: str = 'socials_db'
