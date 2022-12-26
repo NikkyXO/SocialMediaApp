@@ -4,14 +4,14 @@ from .utils import verify_password
 import datetime
 from .schema import *
 from .database import *
-from fastapi import FastAPI, Response, Depends, HTTPException, status
+from fastapi import FastAPI, Response, Depends, HTTPException, status, Security
 from sqlalchemy.orm import Session
-from fastapi.security import OAuth2PasswordBearer
+from fastapi.security import OAuth2PasswordBearer, HTTPAuthorizationCredentials, HTTPBearer
 from .models import *
 from .config import settings
 from typing import Union
 
-
+security = HTTPBearer()
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl='auth/login')
 
 # needed: secret key, algo, expiration time
@@ -74,26 +74,29 @@ def authenticate_user(db: Session, email: str, password: str):
 
 	return user
 
-def get_current_user(token: str = Depends(
-	oauth2_scheme), db: Session = Depends(get_db)):
+def get_current_user(token: HTTPAuthorizationCredentials= Depends(security), db: Session = Depends(get_db)):
+
 
 	credentials_exception = HTTPException(
 		status_code= status.HTTP_401_UNAUTHORIZED,
 		detail=f'Could not validate credentials', 
 		headers={'WWW-Authenticate': 'Bearer'}
 	)
-
+	token = token.credentials
+	print(token)
 	try:
 		payload = jwt.decode(token, settings.secret_key,
 								algorithms=[settings.algorithm])
 
-		email: str = payload.get("sub")
-		if email is None:
+		print("payload => ", payload)
+
+		user_email: str = payload.get("user_email")
+		if user_email is None:
 			raise credentials_exception
-		token_data = TokenData(username=email)
+		# token_data = TokenData(username=email)
 	except JWTError:
 		raise credentials_exception
-	user = get_user(db, email=token_data.username)
+	user = get_user(email=user_email, db=db)
 	if user is None:
 		raise credentials_exception
 	return user
