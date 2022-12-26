@@ -20,7 +20,7 @@ router = APIRouter(
 
 
  
-# ADD NEW  POSTS
+# ADD NEW  USER
 @router.post('/add_user', status_code=status.HTTP_201_CREATED, response_model= UserResponseModel)
 def create_user(user: UserinfoSchema, db: Session = Depends(get_db)):
 	
