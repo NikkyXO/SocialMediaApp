@@ -83,17 +83,17 @@ def get_current_user(token: HTTPAuthorizationCredentials= Depends(security), db:
 		headers={'WWW-Authenticate': 'Bearer'}
 	)
 	token = token.credentials
-	print(token)
+
 	try:
 		payload = jwt.decode(token, settings.secret_key,
 								algorithms=[settings.algorithm])
 
-		print("payload => ", payload)
+		# print("payload => ", payload)
 
 		user_email: str = payload.get("user_email")
 		if user_email is None:
 			raise credentials_exception
-		# token_data = TokenData(username=email)
+
 	except JWTError:
 		raise credentials_exception
 	user = get_user(email=user_email, db=db)

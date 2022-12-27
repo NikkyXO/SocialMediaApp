@@ -48,12 +48,14 @@ class ResponseSchema(BaseModel): # response
 
 	
 class UserinfoSchema(BaseModel):
+	username: str
 	email: EmailStr  #ensures valid email
 	password: str
 
 
 
 class LoginSchema(BaseModel):
+	username: str
 	email: EmailStr
 	password: str 
 
@@ -64,3 +66,7 @@ class Token(BaseModel):
 class TokenData(BaseModel):
 	id: Optional[str] = None
 	email: Optional[str] = None 
+
+class UpVoteSchema(BaseModel):
+	post_id = str
+	password: str 

@@ -17,12 +17,13 @@ router = APIRouter(
 
 
 
-
+#LoginSchema
 @router.post('/login', response_model=Token)
 def login_for_token(user_credentials: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+#def login_for_token(user_credentials: LoginSchema, db: Session = Depends(get_db)):
 
 	user = db.query(User).filter(
-		User.email == user_credentials.username).first()
+		User.username == user_credentials.username).first()
 	
 
 	if not user:
