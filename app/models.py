@@ -32,7 +32,7 @@ class Profile(Base):
 	address 			= Column(String(1024), nullable=False)
 	owner_id			= Column(Integer, ForeignKey(
 		'users.id', ondelete='CASCADE'), nullable=False)
-	profile_image 		= Column(BLOB, nullable=True, default=None)
+	profile_image 		= Column(String(100), nullable=True, default=None)
 
 class User(Base):
 	__tablename__ = 'users'
