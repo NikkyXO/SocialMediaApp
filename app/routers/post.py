@@ -1,7 +1,7 @@
 from fastapi import APIRouter
-from fastapi import FastAPI, Response, Depends, HTTPException, status, Request, BackgroundTasks
+from fastapi import FastAPI, Response, Depends, HTTPException, status, Request, BackgroundTasks, UploadFile, File
 from fastapi.params import Body
-from app.schema import PostCreateInfo, ResponseSchema, TokenData, PostOut, Postin, Token
+from app.schema import PostCreateInfo, PostResponseSchema, TokenData, PostOut, Postin, Token
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models import *
@@ -14,6 +14,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 import os
 from app.models import *
+from app.utils import save_upload_file
 
 parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 templates = Jinja2Templates(directory=os.path.join(parent_dir, "templates"))
@@ -26,41 +27,15 @@ router = APIRouter(
 	tags=['Post']
 )
 
-# @router.get("/", response_class=HTMLResponse)
-# async def create_post_html(request: Request, user = Depends(get_current_user)):
-#     if not user:
-#         return templates.TemplateResponse(
-#             "error.html",
-#             {
-#                 "request": request,
-#                 "error": "401 Unauthorized",
-#                 "message": "User not logged in.",
-#             },
-#         )
-#     if not user.verified:
-#         return templates.TemplateResponse(
-#             "error.html",
-#             {
-#                 "request": request,
-#                 "error": "403 Forbidden",
-#                 "message": "Verify your account to make posts.",
-#             },
-#         )
-#     return templates.TemplateResponse("make_post.html", {"request": request})
-
-
-
-
-
 
  
 # ADD NEW  POSTS
-@router.post('/add_post', status_code=status.HTTP_201_CREATED, response_model= ResponseSchema)
-def create_post(post: PostCreateInfo,  db: Session = Depends(get_db),
-	current_user: TokenData =  Depends(get_current_user)): # 
+@router.post('/add_post', status_code=status.HTTP_201_CREATED)
+def create_post(caption: str, published: bool, post_image: UploadFile = File(...), 
+db: Session = Depends(get_db), current_user: TokenData =  Depends(get_current_user)): # 
 	 
-
-	post_obj = Post(owner_id=current_user.id, **post.dict())
+	filepath = save_upload_file(post_image)
+	post_obj = Post(owner_id=current_user.id, caption=caption, published=published, image=filepath)
 	db.add(post_obj)
 	db.commit()
 	db.refresh(post_obj)
@@ -72,7 +47,7 @@ def create_post(post: PostCreateInfo,  db: Session = Depends(get_db),
 
 
 # GET LATEST POST
-@router.get('/latest', response_model= List[ResponseSchema])
+@router.get('/latest', response_model= List[PostResponseSchema])
 def get_latest_post(db: Session = Depends(get_db)):
 	posts = db.query(Post).order_by(Post.id.desc()).first()
 
@@ -80,7 +55,7 @@ def get_latest_post(db: Session = Depends(get_db)):
 	
 
 # GET ALL POSTS
-@router.get('/all', response_model= ResponseSchema)
+@router.get('/all', response_model=List[PostResponseSchema])
 def get_all_post(db: Session = Depends(get_db)):
 	posts = db.query(Post).all()
 	return posts

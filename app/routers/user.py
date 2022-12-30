@@ -2,13 +2,14 @@ from fastapi import APIRouter
 from fastapi import FastAPI, Response, Depends, HTTPException, status
 from fastapi.params import Body
 from app.schema import (
-	PostCreateInfo, ResponseSchema, UserResponseModel,
+	PostCreateInfo, PostResponseSchema, UserResponseModel,
 	UserinfoSchema
 )
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models import *
 from app.utils import *
+from typing import List
 
 
 
@@ -36,7 +37,7 @@ def create_user(user: UserinfoSchema, db: Session = Depends(get_db)):
 	
 
 # GET ALL USERS
-@router.get('/all', response_model= UserResponseModel)
+@router.get('/all', response_model= List[UserResponseModel])
 def get_all_users(db: Session = Depends(get_db)):
 	users = db.query(User).all()
 	return users

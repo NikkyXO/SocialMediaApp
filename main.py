@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Response, status, Request
 from app.models import *
-from app.routers import post, user, auth
+from app.routers import post, user, auth, profile, follows
 from fastapi.middleware.cors import CORSMiddleware
 from app.database import *
 from app.config import settings
@@ -55,6 +55,8 @@ def root():
 app.include_router(post.router)
 app.include_router(user.router)
 app.include_router(auth.router)
+app.include_router(profile.router)
+app.include_router(follows.router)
 
 Base.metadata.create_all(bind=engine)
 	

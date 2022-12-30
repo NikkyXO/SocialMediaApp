@@ -57,6 +57,7 @@ def verify_access_token(token: str, credentials_exception):
 			raise credentials_exception
 
 		# verifies / validates if id passed is same as payload id
+		# review
 		token_data = TokenData(email=email)
 
 	except JWTError:

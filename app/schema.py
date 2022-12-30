@@ -1,14 +1,18 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field
 from typing import Optional
 from datetime import datetime
-from typing import Optional
+from typing import Optional, Union
+from fastapi import File, UploadFile
 
 
+class ProfileSchema(BaseModel):
+	bio: str
+	location: str
 
-
-class UserResponseModel(BaseModel): # user response
+class UserResponseModel(BaseModel):
 	id: int
 	email: EmailStr
+	username: str
 	created_at: datetime
 
 	class Config:
@@ -16,11 +20,15 @@ class UserResponseModel(BaseModel): # user response
 
 class PostBase(BaseModel):
 	title: str
-	content: str
+	caption: str
 	published: bool = True
 
 
+
+
 class PostCreateInfo(PostBase): #infoSchema
+	# image: bytes = Field(..., media_type="image/jpeg")
+	# image: Union[UploadFile, None] = None
 	pass
 
 class Postin(PostBase): # post Response
@@ -36,11 +44,10 @@ class PostOut(BaseModel):
     Post: Postin
     votes: int
 
-class ResponseSchema(BaseModel): # response
+class PostResponseSchema(BaseModel): # response
 	title: str
 	content: str
 	published: bool = True
-	id: int
 	created_at: datetime
 
 	class Config:
@@ -62,10 +69,12 @@ class LoginSchema(BaseModel):
 class Token(BaseModel):
 	access_token: str
 	token_type: str
+	token_type: str
 
 class TokenData(BaseModel):
 	id: Optional[str] = None
-	email: Optional[str] = None 
+	email: Optional[str] = None
+	username: str
 
 class UpVoteSchema(BaseModel):
 	post_id = str

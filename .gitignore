@@ -1,2 +1,3 @@
 .env
 SM_env
+db_alembic/versions

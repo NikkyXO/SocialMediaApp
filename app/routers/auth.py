@@ -41,4 +41,20 @@ def login_for_token(user_credentials: OAuth2PasswordRequestForm = Depends(), db:
 	# returns token
 	return {'access_token': access_token, 'token_type': 'bearer'}
 
+@router.post('/signup')
+def signup(user: UserinfoSchema, db: Session = Depends(get_db)):
+
+	hashed_password = hash(user.password)
+	user.password = hashed_password
+
 	
+
+	try:
+		new_user = User(**user.dict())
+		db.add(new_user)
+		db.commit()
+		return {"message": "you have been successfully signed up"}
+	
+	except:
+		raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+		detail=f'Duplicate Details')
