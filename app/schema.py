@@ -58,6 +58,7 @@ class UserinfoSchema(BaseModel):
 	username: str
 	email: EmailStr  #ensures valid email
 	password: str
+	confirm_password: str
 
 
 
